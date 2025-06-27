@@ -1,0 +1,27 @@
+version: '3.8'
+
+services:
+  rag-backend:
+    build: ./backend
+    volumes:
+      - ./backend/chroma_db:/app/chroma_db
+      - ./backend/app/static:/app/app/static
+    environment:
+      - NCBI_API_KEY=${NCBI_API_KEY:-}
+      - PYTHONPATH=/app
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    network_mode: host
+    # Uncomment the following section if you have NVIDIA GPU and nvidia-docker installed
+    # deploy:
+    #   resources:
+    #     reservations:
+    #       devices:
+    #         - driver: nvidia
+    #           count: 1
+    #           capabilities: [gpu]
